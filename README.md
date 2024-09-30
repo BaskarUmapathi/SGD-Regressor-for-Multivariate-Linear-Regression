@@ -7,7 +7,7 @@ To write a program to predict the price of the house and number of occupants in 
 1. Hardware – PCs
 2. Anaconda – Python 3.7 Installation / Jupyter notebook
 
-## Algorithm:
+## Algorithm
 ```
 step1: start the program
 step2: Load California housing data, select features and targets, and split into training and testing sets.
@@ -15,67 +15,57 @@ step3: Scale both X (features) and Y (targets) using StandardScaler.
 step4: Use SGDRegressor wrapped in MultiOutputRegressor to train on the scaled training data.
 step5: Predict on test data, inverse transform the results, and calculate the mean squared error.
 step6: End the program
-``` 
+```
 ## Program:
 ```
 /*
 Program to implement the multivariate linear regression model for predicting the price of the house and number of occupants in the house with SGD regressor.
-Developed by: Baskar.U
+Developed by: BASKAR U
 RegisterNumber:  212223220013
 */
 import numpy as np
-import pandas as pd
 from sklearn.datasets import fetch_california_housing
 from sklearn.linear_model import SGDRegressor
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
-dataset = fetch_california_housing()
-df=pd.DataFrame(dataset.data,columns=dataset.feature_names)
-df['HousingPrice']=dataset.target
-print(df.head())
-```
-![image](https://github.com/user-attachments/assets/fee20386-8a11-4864-b68a-3b314bf11881)
-```
-X = df.drop(columns=['AveOccup','HousingPrice'])
-X.info()
-```
-![image](https://github.com/user-attachments/assets/30c73843-e1b9-4efa-bfa3-7e5acee028bf)
-```
-Y = df[['AveOccup','HousingPrice']]
-Y.info()
-```
-![image](https://github.com/user-attachments/assets/a64bc3aa-efa9-4344-8182-a205a6fef2d5)
-```
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
-scaler_X = StandardScaler()
-scaler_Y = StandardScaler()
-X_train = scaler_X.fit_transform(X_train)
-X_test = scaler_X.transform(X_test)
-Y_train = scaler_Y.fit_transform(Y_train)
-Y_test = scaler_Y.transform(Y_test)
-sgd = SGDRegressor(max_iter=1000, tol=1e-3)
+#load the california housing dataset
+data = fetch_california_housing()
+#use the first 3 features as inputs
+X= data.data[:, :3] #features: 'Medinc','housage','averooms'
+Y=np.column_stack((data.target,data.data[:, 6]))
+x_train,x_test,y_train,y_test = train_test_split(X,Y,test_size=0.2,random_state=42)
+#scale the features and target variables
+scaler_x = StandardScaler()
+scaler_y = StandardScaler()
+x_train = scaler_x.fit_transform(x_train)
+x_test = scaler_x.transform(x_test)
+y_train = scaler_y.fit_transform(y_train)
+y_test = scaler_y.transform(y_test)
+#initialize the SGDRegressor
+sgd = SGDRegressor(max_iter = 1000,tol = 1e-3)
+#Use Multioutputregressor to handle multiple output varibles
 multi_output_sgd = MultiOutputRegressor(sgd)
-multi_output_sgd.fit(X_train, Y_train)
-```
-![image](https://github.com/user-attachments/assets/0c52cb44-53f0-4c05-863b-f60707f6995f)
-```
-Y_pred = multi_output_sgd.predict(X_test)
-Y_pred = scaler_Y.inverse_transform(Y_pred)
-Y_test = scaler_Y.inverse_transform(Y_test)
-mse = mean_squared_error(Y_test, Y_pred)
-print("Mean Squared Error:", mse)
-```
-![image](https://github.com/user-attachments/assets/61123b39-d946-45fc-a0b2-fab72e7f6b38)
-
-```
-print("\nPredictions:\n", Y_pred[:5])
+#train the model
+multi_output_sgd.fit(x_train,y_train)
+#predict on the test data
+y_pred = multi_output_sgd.predict(x_test)
+#inverse transform the prediction to get them back to the original scale
+y_pred = scaler_y.inverse_transform(y_pred)
+y_test = scaler_y.inverse_transform(y_test)
+#evaluate the model using mean squared error
+mse = mean_squared_error(y_test,y_pred)
+print("Mean Squared Error:",mse)
+#optionally print some predictions
+print("\npredictions:\n",y_pred[:5])
 ```
 
 ## Output:
-![image](https://github.com/user-attachments/assets/4d040a93-87b8-44b8-86bd-9c49b706b15e)
+![Screenshot 2024-09-09 111853](https://github.com/user-attachments/assets/bd9e94c1-7128-4d53-9eec-8c5e5e6f37cd)
 
+
+![image](https://github.com/user-attachments/assets/da5b9234-3a2f-45b4-a4eb-c761170948ee)
 
 
 ## Result:
